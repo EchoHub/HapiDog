@@ -29,7 +29,9 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "create": "node components/hapi/hapi.js page",
-    "new": "node components/hapi/hapi.js component"
+    "new": "node components/hapi/hapi.js component",
+    "delete": "node components/hapi/hapi.js delete page",
+    "remove": "node components/hapi/hapi.js remove component"
   },
   "repository": {
     "type": "git",
