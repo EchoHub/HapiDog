@@ -1,5 +1,0 @@
-._templage{
-    
-}ass Template {
-    
-}

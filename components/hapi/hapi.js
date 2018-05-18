@@ -124,9 +124,13 @@ function copyDirFiles(src, dst, target) {
     if (allow) {
         fs.mkdirSync(dst);
         fs.readdir(src + "/_template", null, (err, files) => {
-            files.forEach(d => {
-                fs.createReadStream(src + `/_template/${d}`).pipe(fs.createWriteStream(dst + `/${target}.${d.split("")[1]}`))
-            })
+            for(const item of files) {
+                const data = fs.readFileSync(`${src}/_template/${item}`).toString();
+                const _result = data.replace(/_template/g, target);
+                const result = _result.replace(/Template/g, target[0].toUpperCase() + target.slice(1));
+                fs.createWriteStream(`${dst}/${target}.${item.split(".")[1]}`)
+                fs.writeFile(`${dst}/${target}.${item.split(".")[1]}`, result)
+            }
         })
         return true;
     }

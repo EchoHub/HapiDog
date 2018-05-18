@@ -12,3 +12,7 @@ HapiDog 哈皮狗
 - page 页面目录
     - index.html 首页
 ### api文档
+- 创建视图 npm run create <文件名称>
+- 创建组件 npm run new <组件名称>
+- 删除视图 npm run delete <组件名称>
+- 删除组件 npm run remove <组件名称>
