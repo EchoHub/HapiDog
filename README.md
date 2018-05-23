@@ -11,6 +11,48 @@ HapiDog 哈皮狗
 | page | 视图目录   1) index.html 首页 |
     
 ## 文档
+### UI组件库
+- 通用（共 2 个）
+    - Button 按钮
+    - Icon 图标
+    - 
+- 布局（共 2 个）
+    - Grid 栅格
+    - Layout 布局
+- 导航（共 5 个）
+    - Breadcrumb 面包屑
+    - Dropdown 下拉菜单
+    - Menu 导航菜单
+    - Pagination 分页
+    - Steps 步骤条
+- 表单（共 15 个）
+    - AutoComplete 自动完成
+    - DatePicker 时间控件
+    - Cascader 级联选择
+    - CheckBox 多选
+    - CheckBoxGroup 多选组
+    - Radio 单选
+    - Select 下拉菜单
+    - Slider 滑块
+    - Switch 开关
+    - RarioGroup 单选组
+    - TextBox 输入框
+    - TextArea 文本域
+    - Tree 树
+    - Transfer 穿梭框
+    - Upload 上传
+- 通知（共 5 个）
+    - Dialog 对话框
+    - Message 消息提示
+    - MessagBox 提示框
+    - Notification 通知
+    - ToolTip 消息提示
+
+- 其他（共 3 个）
+    - Card 卡片
+    - Carousel 跑马灯
+    - Collapse 折叠面板
+- NavMenu 导航栏
 #### 文件操作
 - 创建视图 
     - npm run create <视图名称>
