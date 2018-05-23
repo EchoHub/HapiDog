@@ -11,7 +11,7 @@ HapiDog 哈皮狗
 | page | 视图目录   1) index.html 首页 |
     
 ## 文档
-### UI组件库
+##### 组件
 - 通用（共 2 个）
     - Button 按钮
     - Icon 图标
@@ -53,6 +53,8 @@ HapiDog 哈皮狗
     - Carousel 跑马灯
     - Collapse 折叠面板
 - NavMenu 导航栏
+#### 工具函数
+持续更新...
 #### 文件操作
 - 创建视图 
     - npm run create <视图名称>
