@@ -2,16 +2,13 @@ HapiDog 哈皮狗
 ============
 `轻量级` `前端` `脚手架`
 ## 项目结构
-|--目录--|--描述--|
+| 目录 | 描述 |
+|:-|:-|
 | _build | 打包压缩的文件目录 |
-| assets | 资源目录   
-- static 图片等静态资源目录
-- styles 样式文件目录
-- app.js 入口文件 |
+| assets | 资源目录   1.static 图片等静态资源目录 2.styles 样式文件目录 3.app.js 入口文件 |
 | components | 模块目录 |
 | mock | 模拟数据文件目录 |
-| page | 视图目录   
-- index.html 首页 |
+| page | 视图目录   1.index.html 首页 |
     
 ## 文档
 #### 文件操作
