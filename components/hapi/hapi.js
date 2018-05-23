@@ -181,6 +181,7 @@ function removeFiles(path) {
 
 //     })
 // }
+
 /**
  * @desc 监听文件变化
  * @param  dirs 目录／文件路径 

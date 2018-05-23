@@ -4,14 +4,11 @@ HapiDog 哈皮狗
 ## 项目结构
 | 目录 | 描述 |
 |:-|:-|
-| _build | 打包压缩的文件目录 |
-| assets | 资源目录   
-1.static 图片等静态资源目录   
-2.styles 样式文件目录   
-3.app.js 入口文件 |
-| components | 模块目录 |
+| _build | 编译打包后的文件存放目录 |
+| assets | 资源存放目录，包括：  1) static 图片等静态资源目录   2) styles 样式文件目录   3) app.js 入口文件 |
+| components | 模块存放目录 |
 | mock | 模拟数据文件目录 |
-| page | 视图目录   1.index.html 首页 |
+| page | 视图目录   1) index.html 首页 |
     
 ## 文档
 #### 文件操作
