@@ -66,3 +66,5 @@ HapiDog 哈皮狗
     - npm run remove <组件名称>
 - 监听文件／目录
     - npm run watch 默认是监听page目录以及components目录
+## 协议
+HapiDog 完全开源，可用于商业开发，但不得基于本框架进行开发并发布或销售
