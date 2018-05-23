@@ -5,9 +5,6 @@ const param = getArgv();
 const colors = require('colors');
 
 const dirPath = {
-    component: path.resolve(__dirname, "./../../components")
-}
-const _fileCopyPath = {
     page: path.resolve(__dirname, "./../../page"),
     component: path.resolve(__dirname, "./../../components")
 };
@@ -17,26 +14,32 @@ const _fileCopyPath = {
         case "page":
             name = param[1];
             log("add", param[0], name, "html", () => {
-                return copyFile(_fileCopyPath.page, path.resolve(__dirname, `./../../page/${name}.html`), "index.html", `${name}.html`)
+                return copyFile(dirPath.page, path.resolve(__dirname, `./../../page/${name}.html`), "index.html", `${name}.html`)
             });
             break;
         case "component":
             name = param[1];
             log("add", param[0], name, "jsx | scss | md", () => {
-                return copyDirFiles(_fileCopyPath.component, `${dirPath.component}/${name}`, name)
+                return copyDirFiles(dirPath.component, `${dirPath.component}/${name}`, name)
             })
             break;
         case "delete":
             name = param[2];
             log("remove", param[1], name, "page", () => {
-                return removeFileOrDir(_fileCopyPath.page, name, false)
+                return removeFileOrDir(dirPath.page, name, false)
             });
             break;
         case "remove":
             name = param[2];
             log("remove", param[1], name, "component", () => {
-                return removeFileOrDir(_fileCopyPath.component, name, true)
+                return removeFileOrDir(dirPath.component, name, true)
             });
+            break;
+        // case "rename":
+            
+        //     break;
+        case "watch":
+            watchFileOrDir([dirPath.page, dirPath.component])
             break;
         default:
             throw console.log("illegal param".red)
@@ -124,7 +127,7 @@ function copyDirFiles(src, dst, target) {
     if (allow) {
         fs.mkdirSync(dst);
         fs.readdir(src + "/_template", null, (err, files) => {
-            for(const item of files) {
+            for (const item of files) {
                 const data = fs.readFileSync(`${src}/_template/${item}`).toString();
                 const _result = data.replace(/_template/g, target);
                 const result = _result.replace(/Template/g, target[0].toUpperCase() + target.slice(1));
@@ -145,20 +148,20 @@ function copyDirFiles(src, dst, target) {
 function removeFileOrDir(path, filename, fileOrDir) {
     let allow = false;
     fs.readdirSync(path).forEach(file => {
-        if(file.split(".")[0] === filename) {
+        if (file.split(".")[0] === filename) {
             allow = true;
             const _path = `${path}/${filename}`;
-            if(fileOrDir) {
+            if (fileOrDir) {
                 removeFiles(_path)
                 fs.rmdirSync(_path)
-            }else {
+            } else {
                 fs.unlink(`${_path}.${file.split(".")[1]}`)
             }
             // fileOrDir ? removeFiles(_path) && fs.rmdirSync(_path) : fs.unlink(`${_path}.${file.split(".")[1]}`)
             return;
         }
     });
-    if(allow){
+    if (allow) {
         return true;
     }
     return false;
@@ -168,5 +171,62 @@ function removeFiles(path) {
     fs.readdirSync(path).forEach(file => {
         const _path = `${path}/${file}`;
         fs.statSync(_path).isDirectory() ? removeFiles(_path) : fs.unlinkSync(_path)
+    })
+}
+/**
+ * @desc 移动 重命名文件
+ */
+// function moveOrRenameFile(path, dstPath) {
+//     fs.rename(path, dstPath, err => {
+
+//     })
+// }
+/**
+ * @desc 监听文件变化
+ * @param  dirs 目录／文件路径 
+ */
+function watchFileOrDir(dirs) {
+    // dirs 0 --> page目录, 1 --> components目录
+    dirs.forEach(dir => createWatcher(dir))
+    // const fsWatcher = fs.watch(path, (event, filename) => {
+    //     console.log("watch")
+    //     console.log(event, filename);
+    // });
+    // fsWatcher.on("change", (event, filename) => {
+    //     console.log("watcher")
+    //     console.log(event, filename)
+    // })
+}
+/**
+ * 
+ * @desc 创建监听器
+ * @param dir 目录路径 
+ */
+function createWatcher(dir) {
+    fs.readdir(dir, (err, files) => {
+        files.length && files.forEach(file => {
+            const _path = `${dir}/${file}`;
+            fs.stat(_path, (err, stats) => {
+                if (stats.isDirectory()) {
+                    createWatcher(_path)
+                } else {
+                    let count = 0;
+                    const fsWatcher = fs.watch(_path, (event, filename) => {
+                        count++;
+                        console.log(`--- 正在监听 ${filename} ---`.green);
+                    });
+                    fsWatcher.on("change", (event, filename) => {
+                        switch (event) {
+                            case "rename":
+                                console.log(`${filename}正在被重命名`.red);
+                                break;
+                            case "change":
+                                console.log(`${filename}正在被修改`.red);
+                                break;
+                        }
+                    })
+                }
+            })
+        });
     })
 }

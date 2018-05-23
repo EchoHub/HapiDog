@@ -11,7 +11,8 @@ HapiDog 哈皮狗
 - mock 模拟数据文件目录
 - page 视图目录
     - index.html 首页
-### api文档
+### 文档
+#### 文件操作
 - 创建视图 
     - npm run create <视图名称>
 - 创建组件 
@@ -20,9 +21,5 @@ HapiDog 哈皮狗
     - npm run delete <视图名称>
 - 删除组件 
     - npm run remove <组件名称>
-- 移动／重命名视图
-    - npm run rename
-- 移动／重命名组件
-    - npm run rn oldFile/oldDir newFile/newDir
 - 监听文件／目录
-    - npm run watch <文件／目录>
+    - npm run watch 默认是监听page目录以及components目录

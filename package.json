@@ -31,7 +31,8 @@
     "create": "node components/hapi/hapi.js page",
     "new": "node components/hapi/hapi.js component",
     "delete": "node components/hapi/hapi.js delete page",
-    "remove": "node components/hapi/hapi.js remove component"
+    "remove": "node components/hapi/hapi.js remove component",
+    "watch": "node components/hapi/hapi.js watch"
   },
   "repository": {
     "type": "git",
