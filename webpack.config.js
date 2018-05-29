@@ -3,15 +3,19 @@ const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin'); // 按需生成html模版
 const CleanWebpackPlugin = require("clean-webpack-plugin"); // 清理文件
 module.exports = {
-    entry: path.resolve(__dirname, "assets/common.js"),
+    entry: path.resolve(__dirname, "components/common.tsx"),
     output: {
         path: path.resolve(__dirname, "_build"),
         filename: "hapidog.bundle.[hash].js",
         publicPath: "/_build"
     },
     resolve: {
-        extensions: [".js", ".jsx"],
-        modules: ["./components", "./assets/**/*", "node_modules"]
+        extensions: [".ts", ".tsx", ".js", ".jsx"],
+        modules: ["./components", "./assets/*", "node_modules"],
+        alias: {
+           "*": "./components/*",
+           "assets": "./assets"
+        }
     },
     devServer: {
         port: 9000,
@@ -20,18 +24,24 @@ module.exports = {
     },
     module: {
         rules: [
+            // {
+            //     test: /\.js[x]?$/,
+            //     // include: path.resolve(__dirname, "components"),
+            //     use: {
+            //         loader: "babel-loader",
+            //         options: {
+            //             presets: [
+            //                 "env", "react"
+            //             ]
+            //         }
+            //     },
+            //     exclude: /node_modules/
+            // },
             {
-                test: /\.(js|jsx)$/,
-                // include: path.resolve(__dirname, "components"),
+                test: /.tsx?$/,
                 use: {
-                    loader: "babel-loader",
-                    options: {
-                        presets: [
-                            "env", "react"
-                        ]
-                    }
-                },
-                exclude: /node_modules/
+                    loader: 'ts-loader'
+                }
             },
             {
                 test: /\.scss$/,

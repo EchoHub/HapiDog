@@ -1,0 +1,61 @@
+{
+    "compilerOptions": {
+        "rootDir": ".",
+        "outDir": "./_build/components",
+        "target": "es5",
+        "lib": [
+            "es7",
+            "dom"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "newLine": "LF",
+        "strict": false,
+        "noImplicitAny": false, //在表达式和声明上有隐含的'any'类型时报错。
+        "preserveConstEnums": true,
+        "experimentalDecorators": true,
+        "jsx": "react",
+        "jsxFactory": "VNode.create",
+        "forceConsistentCasingInFileNames": true,
+        "paths": {
+            "*": ["./components/*"]
+        }
+    },
+    "include": [
+        "components/**/*",
+    ],
+    // "exclude": [
+    //     "node_modules"
+    // ]
+}
+
+// {
+//     "compilerOptions": {
+//         "allowJs": true,
+//         "outDir": "../_build/components",
+//         "target": "es6",
+//         "sourceMap": true,
+//         "newLine": "lf",
+//         "preserveConstEnums": true,
+//         "stripInternal": true,
+//         "jsx": "react",
+//         "jsxFactory": "VNode.create",
+//         "experimentalDecorators": true,
+//         "module": "amd",
+//         "moduleResolution": "node",
+//         "baseUrl": ".",
+//         "forceConsistentCasingInFileNames": true,
+//         "lib": [
+//             "esnext",
+//             "dom"
+//         ]
+//     },
+//     "include": [
+//         "./**/*.ts",
+//         "./**/*.tsx",
+//         "./**/*.js",
+//         "./**/*.jsx",
+//         "../assets/doc/**/*.d.ts"
+//     ]
+// }
