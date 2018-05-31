@@ -1,45 +1,92 @@
 /// <reference path="jsx.d.ts" />
-import * as DOM from "dom/dom"
-/**
- * @desc 控件状态
- */
-export const ControlState = {
-    // 初始状态
-    initial: 1,
-    // 需要重新渲染
-    invalidated: 2,
-    // 正在渲染
-    rendering: 3,
-    // 渲染完成
-    rendered: 4
+import * as DOM from "./../dom/dom"
+export enum ControlState {
+    /**
+     * 初始状态
+     */
+    initial = 1,
+    /**
+     * 需要重新渲染
+     */
+    invalidate = 2,
+    /**
+     * 正在渲染
+     */
+    rendering = 3,
+    /**
+     * 渲染结束
+     */
+    rendered = 4
 }
 /**
  * @desc 表示一个控件基类
  */
 export default class Control {
+
+    /**
+     * @desc 节点状态
+     */
+    private readState
+
     render() {
         return <div></div>
     }
+    /**
+     * @desc 更新节点
+     */
+    update = () => {
+        let result = VNode.toDomNodeSync(this.render());
+        for (const key in this._props) {
+            // 如果节点存在该属性 则添加
+            let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
+            // if (_key in result) result.setAttribute(_key,  this._props[key]);
+            if (_key in result) (/^on[A-Z]*/.test(key) || /^className$/.test(key)) ? result[_key] = this._props[key]: result.setAttribute(_key, this._props[key]);
+        }
+        // 替换原来的节点
+        if(this._elem && this._elem.parentNode) {
+            this._elem.parentNode.replaceChild(result, this._elem)
+        }
+        this.readState = ControlState.rendered;
+        this._elem = result;
+    }
 
+    /**
+     * @desc 初始化完成 类似 componenntDidMount
+     */
+    init() {
+        console.log(new Date())
+    }
+    /**
+     * @desc 组件卸载 类型 componentWillUnmount
+     */
+    uninit() {
+    }
     // 对应的原生节点
     private _elem: HTMLElement;
     /**
      * @desc 获取节点对应真实节点
      */
     get elem() {
-        let result = VNode.toDomNodeSync(this._elem ? new VNode("div", null, this._elem as any) : this.render());
-        for (const key in this._props) {
-            // 如果节点存在该属性 则添加
-            let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
-            if (_key in result) result[_key] = this._props[key];
+        if (this.readState !== ControlState.rendered) {
+            this.readState = ControlState.rendering;
+            this.update();
         }
-        return result;
+        return this._elem;
     }
     /**
      * @desc 设置节点对应真实节点
      */
     set elem(v) {
-        v && (this._elem = v);
+        this.readState = ControlState.rendered;
+        const oldElem = this._elem;
+        // 如果不一样则重新赋值
+        if (oldElem != v) {
+            this._elem = v;
+            const parent = oldElem.parentNode;
+            if (parent) v ? parent.replaceChild(v, oldElem) : parent.removeChild(oldElem);
+        }
+        // 如果一样 重新进行初始化操作
+        v && this.init();
     }
 
     private _props
@@ -47,13 +94,51 @@ export default class Control {
      * @desc 设置节点属性
      */
     set props(v) {
-        this._props = v;
+        if (v && Object.keys(v).length) {
+            // 验证 props是否发生变化 如果发生变化则重新渲染节点
+            if (this._props) {
+                // 如果 属性有新增／删除 则直接重新渲染
+                if (Object.keys(this._props).length !== Object.keys(v).length) {
+                    this._props = v;
+                    // 若节点未渲染完成 则 不进行节点渲染
+                    this.readState = ControlState.invalidate && this.update();
+                    return;
+                }
+                // 如果属性值发生变化，则重新渲染
+                for (const key in v) {
+                    if (v[key] !== this._props[key]) {
+                        this._props = v;
+                        // 若节点未渲染完成 则 不进行节点渲染
+                        this.readState = ControlState.invalidate && this.update();
+                        return;
+                    }
+                }
+            } else {
+                this._props = v;
+                // 若节点未渲染完成 则 不进行节点渲染
+                this.readState === ControlState.rendered && this.update();
+            }
+
+        }
+
     }
     /**
      * @desc 获取节点属性
      */
     get props() {
         return this._props;
+    }
+
+    /**
+     * @desc 类名 className
+     */
+    private _class
+    get class() {
+        return this._class
+    }
+
+    set class(v) {
+        this._class = v;
     }
 }
 /**
@@ -111,7 +196,9 @@ export class VNode {
                 // 组件
                 const _type = new (type as any)();
                 _type.props = attrs;
-                _type.elem = children && children.length ? children : null
+                if(children && children.length) {
+                    for(const child of children) _type.elem.appendChild(this.toDomNodeSync(child));
+                }
                 _node = _type.elem;
                 break;
             case "string":
@@ -119,7 +206,7 @@ export class VNode {
                 _node = DOM.createElement(type, attrs);
                 if (children && children.length) {
                     for (const child of children) {
-                        _node.append(this.toDomNodeSync(child));
+                        _node.appendChild(this.toDomNodeSync(child));
                     }
                 }
                 break;
@@ -128,7 +215,7 @@ export class VNode {
                 _node = DOM.createTextNode(attrs);
                 if (children && children.length) {
                     for (const child of children) {
-                        _node.append(this.toDomNodeSync(child));
+                        _node.appendChild(this.toDomNodeSync(child));
                     }
                 }
                 break;
@@ -142,7 +229,6 @@ export class VNode {
 
 }
 
-export function bind(): any { }
 /**
  * @desc 渲染节点
  */
@@ -153,7 +239,7 @@ export function render(vNode, target) {
     if (vNode instanceof VNode) {
         if (!vNode.result) vNode.result = VNode.toDomNodeSync(vNode)
         result = vNode.result || null;
-        target.appendChild(result);
+        result && target.appendChild(result);
         return;
     }
     // 文本节点

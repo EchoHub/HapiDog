@@ -11,7 +11,7 @@ module.exports = {
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".jsx"],
-        modules: ["./components", "./assets/*", "node_modules"],
+        modules: ["./components", "./assets/**/*", "node_modules"],
         alias: {
            "*": "./components/*",
            "assets": "./assets"

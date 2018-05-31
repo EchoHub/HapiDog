@@ -16,13 +16,6 @@ export function query(selector: String) {
 }
 
 /**
- * @desc 对
- */
-// export function append(node) {
-    
-// }
-
-/**
  * @desc 创建文本节点
  */
 export function createTextNode(data) {
@@ -36,11 +29,12 @@ export function createTextNode(data) {
  * @param children? 子节点
  */
 export function createElement(type, props) {
+    if(!type) return ""
     const element = document.createElement(type);
     for(const key in props) {
         // 如果节点存在该属性 则添加
         let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
-        if(_key in element) element[_key] = props[key]
+        if(_key in element) (/^on[A-Z]*/.test(key) || /^className$/.test(key)) ? element[_key] = props[key]:element.setAttribute(_key, props[key]);
     }
     return element;
 }
