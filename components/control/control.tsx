@@ -191,6 +191,7 @@ export class VNode {
         const attrs = vNode.props;
         const children = vNode.children;
         let _node;
+        console.log(vNode)
         switch (typeof type) {
             case "function":
                 // 组件

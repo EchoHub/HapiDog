@@ -1,5 +1,5 @@
 import Control, { render, VNode } from "./control/control";
-import Button from "./button/button";
+import Button, { ButtonGroup } from "./button/button";
 import "./common.scss";
 import "./../assets/styles/home.scss";
 const containerNode = document.getElementById('root');
@@ -8,8 +8,9 @@ class Home extends Control {
         super()
     }
     private node
+    private className
     buttonClick = () => {
-        alert("这是按钮")
+        alert("这是一个按钮")
     }
     render() {
         return <div className="e-home">
@@ -23,6 +24,7 @@ class Home extends Control {
                         <Button className="e-button e-button-error e-button-margin">样式四</Button>
                         <Button className="e-button e-button-warning e-button-margin">样式五</Button>
                         <Button className="e-button e-button-light e-button-margin">样式六</Button>
+                        <Button className="e-button e-button-light e-button-margin" disabled>样式七</Button>
                     </div>
                 </fieldset>
                 <fieldset className="e-section-fieldset">
@@ -46,18 +48,28 @@ class Home extends Control {
                         <Button className="e-button e-button-light mini e-button-margin">迷你按钮</Button>
                     </div>
                     <div>
-                        <div className="e-mt-10 e-fixed-width-200"><Button className="e-button e-button-light e-button-fluid">流体按钮</Button></div>
+                        <div className="e-mt-10 e-fixed-width-200"><Button className={`e-button e-button-light e-button-fluid ${this.className}`}>流体按钮</Button></div>
                     </div>
                 </fieldset>
                 <fieldset className="e-section-fieldset">
                     <legend>图标按钮</legend>
                     <div>
-                        <Button className="e-button e-button-default large e-button-margin" onClick={this.buttonClick}>&#xe6f8;</Button>
-                        <Button className="e-button e-button-primary normal e-button-margin"><i className="icon iconfont">&#xe6f8;</i></Button>
-                        <Button className="e-button e-button-info small e-button-margin"><i className="icon iconfont">&#xe6ee;</i></Button>
-                        <Button className="e-button e-button-error mini e-button-margin"><i className="icon iconfont">&#xe6fd;</i></Button>
-                        <Button className="e-button e-button-warning mini e-button-margin"><i className="icon iconfont">&#xe708;</i></Button>
-                        <Button className="e-button e-button-light mini e-button-margin"><i className="icon iconfont">&#xe71c;</i></Button>
+                        <Button className="e-button e-button-default circle large e-button-margin" onClick={this.buttonClick}><i className="icon iconfont">&#xe6dd;</i></Button>
+                        <Button className="e-button e-button-primary circle normal e-button-margin"><i className="icon iconfont">&#xe6f8;</i></Button>
+                        <Button className="e-button e-button-info circle small e-button-margin"><i className="icon iconfont">&#xe6ee;</i></Button>
+                        <Button className="e-button e-button-error circle mini e-button-margin"><i className="icon iconfont">&#xe6fd;</i></Button>
+                        <Button className="e-button e-button-warning circle mini e-button-margin"><i className="icon iconfont">&#xe708;</i></Button>
+                        <Button className="e-button e-button-light circle mini e-button-margin"><i className="icon iconfont">&#xe71c;</i></Button>
+                    </div>
+                </fieldset>
+                <fieldset className="e-section-fieldset">
+                    <legend>按钮组</legend>
+                    <div>
+                        <ButtonGroup>
+                            <Button className="e-button e-button-primary normal">正常按钮</Button>
+                            <Button className="e-button e-button-primary normal">正常按钮</Button>
+                            <Button className="e-button e-button-primary normal">正常按钮</Button>
+                        </ButtonGroup>
                     </div>
                 </fieldset>
             </section>

@@ -1,3 +1,4 @@
+@import "./iconfont/iconfont.css";
 @font-face {font-family: "iconfont";
     src: url('./iconfont/iconfont.eot'); /* IE9*/
     src: url('./iconfont/iconfont.eot#iefix') format('embedded-opentype'), /* IE6-IE8 */
@@ -7,12 +8,12 @@
 }
 
 .iconfont {
-font-family:"iconfont" !important;
-font-size:16px;
-font-style:normal;
--webkit-font-smoothing: antialiased;
--webkit-text-stroke-width: 0.2px;
--moz-osx-font-smoothing: grayscale;
+    font-family:"iconfont" !important;
+    font-size:16px;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
 }
 .e-mt-10{
     margin-top: 10px;

@@ -6,3 +6,9 @@ export default class Button extends Control{
         return <button type="button" className="e-button"></button>
     }
 }
+
+export class ButtonGroup extends Control {
+    render() {
+        return <div className="e-buttongroup"></div>
+    }
+}
