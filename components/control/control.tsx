@@ -22,39 +22,50 @@ export enum ControlState {
  * @desc 表示一个控件基类
  */
 export default class Control {
-
+    constructor(props) {
+        this.props = props
+    }
     /**
      * @desc 节点状态
      */
-    private readState
+    private _readState;
+    set readState(v) {
+        v && (this._readState = v);
+    }
 
     render() {
         return <div></div>
     }
+
     /**
      * @desc 更新节点
      */
     update = () => {
-        let result = VNode.toDomNodeSync(this.render());
-        for (const key in this._props) {
-            // 如果节点存在该属性 则添加
-            let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
-            // if (_key in result) result.setAttribute(_key,  this._props[key]);
-            if (_key in result) (/^on[A-Z]*/.test(key) || /^className$/.test(key)) ? result[_key] = this._props[key]: result.setAttribute(_key, this._props[key]);
+        let result = VNode.toDomNodeSync(this.render(), this.alwaysUpdate === ControlState.initial ? true : false);
+        if(this._readState !== ControlState.rendering) {
+            for (const key in this._props) {
+                // 如果节点存在该属性 则添加
+                let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
+                // if (_key in result) result.setAttribute(_key,  this._props[key]);
+                if (_key in result) /^on[A-Z]*/.test(key) ? result[_key] = this._props[key]
+                : /^className$/.test(key) ? result[_key] = (result[_key] ? result[_key] : "").concat(" " + this._props[key] || "")
+                : result.setAttribute(_key, this._props[key]);
+            }
+            // 替换原来的节点
+            if (this._elem && this._elem.parentNode) {
+                this._elem.parentNode.replaceChild(result, this._elem)
+            }
+            this._readState = ControlState.rendered;
+            this._elem = result;
+            this.alwaysUpdate === ControlState.initial && this.init();
         }
-        // 替换原来的节点
-        if(this._elem && this._elem.parentNode) {
-            this._elem.parentNode.replaceChild(result, this._elem)
-        }
-        this.readState = ControlState.rendered;
-        this._elem = result;
     }
 
     /**
      * @desc 初始化完成 类似 componenntDidMount
      */
     init() {
-        console.log(new Date())
+        console.log(`这是 ${(this as any).__proto__.constructor.name} 组件加载完成初始化函数：`, new Date().toLocaleString());
     }
     /**
      * @desc 组件卸载 类型 componentWillUnmount
@@ -66,27 +77,27 @@ export default class Control {
     /**
      * @desc 获取节点对应真实节点
      */
+    private alwaysUpdate: Number;
     get elem() {
-        if (this.readState !== ControlState.rendered) {
-            this.readState = ControlState.rendering;
+        if (this._readState !== ControlState.rendered) {
+            this.alwaysUpdate = this._readState
+            this._readState = ControlState.invalidate
             this.update();
         }
+        this._readState = ControlState.rendered;
         return this._elem;
     }
     /**
      * @desc 设置节点对应真实节点
      */
     set elem(v) {
-        this.readState = ControlState.rendered;
         const oldElem = this._elem;
         // 如果不一样则重新赋值
         if (oldElem != v) {
             this._elem = v;
-            const parent = oldElem.parentNode;
+            const parent = oldElem && oldElem.parentNode || null;
             if (parent) v ? parent.replaceChild(v, oldElem) : parent.removeChild(oldElem);
         }
-        // 如果一样 重新进行初始化操作
-        v && this.init();
     }
 
     private _props
@@ -101,7 +112,7 @@ export default class Control {
                 if (Object.keys(this._props).length !== Object.keys(v).length) {
                     this._props = v;
                     // 若节点未渲染完成 则 不进行节点渲染
-                    this.readState = ControlState.invalidate && this.update();
+                    this._readState = ControlState.invalidate && this.update();
                     return;
                 }
                 // 如果属性值发生变化，则重新渲染
@@ -109,16 +120,15 @@ export default class Control {
                     if (v[key] !== this._props[key]) {
                         this._props = v;
                         // 若节点未渲染完成 则 不进行节点渲染
-                        this.readState = ControlState.invalidate && this.update();
+                        this._readState = ControlState.invalidate && this.update();
                         return;
                     }
                 }
             } else {
                 this._props = v;
                 // 若节点未渲染完成 则 不进行节点渲染
-                this.readState === ControlState.rendered && this.update();
+                this._readState === ControlState.rendered && this.update();
             }
-
         }
 
     }
@@ -129,16 +139,33 @@ export default class Control {
         return this._props;
     }
 
+    protected children: VNode[]
     /**
      * @desc 类名 className
      */
-    private _class
+    private _class: Array<String>
     get class() {
         return this._class
     }
 
-    set class(v) {
-        this._class = v;
+    set class(v: Array<String>) {
+    }
+    protected state: { [key: string]: string | number | Object | any }
+    // 状态赋值
+    setState(v: { [key: string]: string | number | Object | any }) {
+        if (!v) return;
+        if (Object.keys(v).length) {
+            for (const key in v) {
+                if (v[key] !== this.state[key]) {
+                    this.state[key] = v[key];
+                    this._readState === ControlState.rendered && (this._readState = ControlState.invalidate);
+                }
+            }
+            if (this._readState === ControlState.invalidate) {
+                this.alwaysUpdate = this._readState;
+                this.update();
+            }
+        }
     }
 }
 /**
@@ -183,22 +210,25 @@ export class VNode {
 
     /**
      * @desc 同步生成节点对应的真实节点
-     * @param 新的VNode
-     * @param 旧的VNode
+     * @param vNode VNode
+     * @param isInitial 是否是初次加载
      */
-    static toDomNodeSync(vNode: VNode) {
+    static toDomNodeSync(vNode: VNode, isInitial?: Boolean) {
         const type = vNode.type;
         const attrs = vNode.props;
         const children = vNode.children;
         let _node;
-        console.log(vNode)
         switch (typeof type) {
             case "function":
                 // 组件
-                const _type = new (type as any)();
-                _type.props = attrs;
-                if(children && children.length) {
-                    for(const child of children) _type.elem.appendChild(this.toDomNodeSync(child));
+                const _type = new (type as any)(attrs);
+                _type.children = children;
+                _type.readState = isInitial ? ControlState.initial : ControlState.invalidate;  
+                if (children && children.length) {
+                    for (const child of children) {
+                        const _child = this.toDomNodeSync(child, isInitial ? true : false);
+                        _type.elem && _type.elem.appendChild(_child);
+                    }
                 }
                 _node = _type.elem;
                 break;
@@ -207,18 +237,19 @@ export class VNode {
                 _node = DOM.createElement(type, attrs);
                 if (children && children.length) {
                     for (const child of children) {
-                        _node.appendChild(this.toDomNodeSync(child));
+                        const _child = this.toDomNodeSync(child, isInitial ? true : false);
+                        _child && _node.appendChild(_child);
                     }
                 }
                 break;
             default:
                 // 字符串
                 _node = DOM.createTextNode(attrs);
-                if (children && children.length) {
-                    for (const child of children) {
-                        _node.appendChild(this.toDomNodeSync(child));
-                    }
-                }
+                // if (children && children.length) {
+                //     for (const child of children) {
+                //         _node.appendChild(this.toDomNodeSync(child));
+                //     }
+                // }
                 break;
         }
         return _node;
@@ -229,7 +260,6 @@ export class VNode {
     result: HTMLElement | Text | Control;
 
 }
-
 /**
  * @desc 渲染节点
  */
@@ -238,7 +268,7 @@ export function render(vNode, target) {
     // 控件／原生节点
     target.innerHTML = ""
     if (vNode instanceof VNode) {
-        if (!vNode.result) vNode.result = VNode.toDomNodeSync(vNode)
+        if (!vNode.result) vNode.result = VNode.toDomNodeSync(vNode, true);
         result = vNode.result || null;
         result && target.appendChild(result);
         return;
@@ -247,3 +277,4 @@ export function render(vNode, target) {
     result = DOM.createTextNode(vNode);
     target.appendChild(result);
 }
+

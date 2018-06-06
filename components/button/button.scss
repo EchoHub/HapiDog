@@ -101,9 +101,89 @@
     }
 }
 .e-buttongroup{
-    .e-button{
-        &:hover {
-            border-radius: none;
+    &.large{
+        .e-button{
+            line-height: 36px;
+            height: 36px;
+            font-size: 16px;
+        }
+    }
+    &.normal{
+        .e-button{
+            
+        }
+    }
+    &.small{
+        .e-button{
+            line-height: 28px;
+            height: 28px;
+            font-size: 13px;
+        }
+    }
+    &.mini{
+        .e-button{
+            line-height: 24px;
+            height: 24px;
+            font-size: 12px;
+        }
+    }
+    &.default {
+        .e-button{
+            border: 1px solid #c9c9c9;
+            color: #555555;
+            &:hover{
+                border: 1px solid #2196f3;
+                color: #2196f3;
+            }
+        }
+    }
+    &.primary {
+        .e-button{
+            color: #fafafa;
+            background: #2196f3;
+            border: 1px solid #2196f3;
+            &:hover{
+                opacity: .9;
+            }
+        }
+    }
+    &.info {
+        .e-button{
+            color: #fafafa;
+            background: #009a61;
+            border: 1px solid #009a61;
+            &:hover{
+                opacity: .9;
+            }
+        }
+    }
+    &.error {
+        .e-button{
+            color: #fafafa;
+            background: #f5222d;
+            border: 1px solid #f5222d;
+            &:hover{
+                opacity: .9;
+            }
+        }
+    }
+    &.warning {
+        .e-button{
+            color: #fafafa;
+            background: #ff9800;
+            border: 1px solid #ff9800;
+            &:hover{
+                opacity: .9;
+            }
+        }
+    }
+    &.light {
+        .e-button{
+            border: 1px solid #2196f3;
+            color: #2196f3;
+            &:hover{
+                background-color: #daebf7;
+            }
         }
     }
 }

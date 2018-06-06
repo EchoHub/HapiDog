@@ -4,10 +4,94 @@
         margin-right: 10px;
     }
     .e-section-fieldset{
-        border: 1px solid #ddd;
+        border: 1px solid #ddd;    
+        background: #fff;
+        // box-shadow: 0 0 4px rgba(0,0,0,.1);
+        border: none;
+        box-shadow: 0 1px 2px rgba(0,0,0,.1);
+        legend{
+            color: #666;
+        }
     }
     .e-fixed-width-200{
-        width: 200px;
+        width: 220px;
         height: 50px;
+    }
+    .e-header{
+        height: 50px;
+        width: calc(100% - 220px);
+        z-index: 999;
+        border-bottom: none;
+        top: 0;
+        position: fixed;
+        background: #fff;
+        padding-left: 220px;
+        box-shadow: 0 1px 2px rgba(0,0,0,.05);
+        &-nav{
+            list-style: none;
+            text-decoration: none;
+            margin: 0;
+            padding: 0 10px;
+            font-size: 14px;
+            li{
+                display: inline-block;
+                line-height: 50px;
+                margin: 0 20px;
+                a{
+                    text-decoration: none;
+                    color: #666;
+                    &:hover{
+                        opacity: .8;
+                    }
+                }
+                .icon{
+                    font-size: 20px;
+                }
+            }
+        }
+    }
+    .e-sidenav{
+        position: fixed;
+        top: 0;
+        width: 220px;
+        z-index: 1000;
+        height: 100%;
+        left: 0;
+        background: #393D49;
+        .e-nav-logo{
+            width: 220px;
+            float: left;
+            background: #23262E;
+            font-size: 14px;
+            line-height: 50px;
+            color: rgba(255,255,255,.8);
+            text-align: center;
+        }
+    }
+    .e-container{
+        position: absolute;
+        top: 50px;
+        left: 220px;
+        width: calc(100% - 240px);
+        height: calc(100% - 50px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        background-color: #f2f2f2;
+        padding: 10px;
+    }
+    .e-footer{
+        position: fixed;
+        left: 220px;
+        height: 40px;
+        padding: 5px 0;
+        right: 0;
+        bottom: 0;
+        background: #eee;
+        font-size: 13px;
+        color: #999;
+        .copyright {
+            margin: 0;
+            line-height: 50px;
+        }
     }
 }
