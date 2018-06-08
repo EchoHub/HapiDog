@@ -24,22 +24,22 @@
             cursor: pointer;
             user-select: none;
             &_flag{
-                transform: rotate(0);
-                -moz-transform: rotate(0);
-                -webkit-transform: rotate(0);
-                -o-transform: rotate(0);
-                -ms-transform: rotate(0);
+                transform: rotate(180deg);
+                -moz-transform: rotate(180deg);
+                -webkit-transform: rotate(180deg);
+                -o-transform: rotate(180deg);
+                -ms-transform: rotate(180deg);
                 transition: transform ease .3s;
                 -moz-transition: -moz-transform ease .3s;
                 -webkit-transition: -webkit-transform ease .3s;
                 -o-transition: -o-transform ease .3s;
                 -ms-transition: -ms-transform ease .3s;
                 &.collapsed{
-                    transform: rotate(180deg);
-                    -moz-transform: rotate(180deg);
-                    -webkit-transform: rotate(180deg);
-                    -o-transform: rotate(180deg);
-                    -ms-transform: rotate(180deg);
+                    transform: rotate(0);
+                    -moz-transform: rotate(0);
+                    -webkit-transform: rotate(0);
+                    -o-transform: rotate(0);
+                    -ms-transform: rotate(0);
                 }
             }
         }

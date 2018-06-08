@@ -40,26 +40,18 @@ export default class Control {
 
     // 元素子集
     protected children: Array<VNode>
-    private sourceNode: VNode;
-
-    /**
-     * @desc diff算法实现
-     */
-    invalidate = (oldNode: Node, newNode: Node, parentNode?: Node) => {
-        // 旧
-        for(const item of (oldNode as any).children) {
-            // 新
-            for(const ite of (newNode as any).children) {
-                if(item.children && ite.children && item.children.length === ite.children.length ) {
-                    if (item != ite) {
-                        item.parentNode.replaceChild(ite, item);
-                        return;
-                    }
-                    this.invalidate(item, ite, ite);
-                    return;
-                } 
-                newNode !== oldNode && parentNode.replaceChild(newNode, oldNode);
-            }
+    diff = (oldNode: Node, newNode: Node, parentNode) => {
+        const oldTag = (oldNode as HTMLElement).tagName;
+        const newTag = (newNode as HTMLElement).tagName;
+        if (oldTag !== newTag) {
+            // tag不一致重新渲染
+            parentNode.replaceChild(newNode, oldNode);
+        } else {
+            const oldAttrs = (oldNode as HTMLElement).attributes;
+            const newAttrs = (newNode as HTMLElement).attributes;
+            // 属性不一致 不重新渲染 只改变属性
+            parentNode.replaceChild(newNode, oldNode);
+            // 子集不一致 重新渲染
         }
     }
     /**
@@ -68,7 +60,6 @@ export default class Control {
     update = () => {
         const vNode = this.render();
         let result = VNode.toDomNodeSync(vNode, this.alwaysUpdate === ControlState.initial ? true : false);
-        this.sourceNode = this.sourceNode || result;
         if (this._readState !== ControlState.rendering) {
             for (const key in this._props) {
                 // 如果节点存在该属性 则添加
@@ -78,15 +69,8 @@ export default class Control {
                         : result.setAttribute(_key, this._props[key]);
             }
             if (this._elem && this._elem.parentNode) {
-                // 初次加载
                 const parentNode = this._elem.parentNode;
-                if (!this.sourceNode) {
-                    // 替换原来的节点
-                    parentNode.replaceChild(result, this._elem)
-                } else {
-                    // 对比 新旧节点 进行diff校验
-                    this.invalidate(result, this.sourceNode as any, parentNode)
-                }
+                this.diff(this._elem, result, parentNode)
             }
             this._readState = ControlState.rendered;
             this._elem = result;
