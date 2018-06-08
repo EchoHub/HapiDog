@@ -3,16 +3,40 @@ import * as DOM from "./../dom/dom"
 import "./navMenu.scss";
 export default class NavMenu extends Control {
     render() {
-        return <div className="e-navmenu">
-            
-        </div>
+        return <div className="e-navmenu">{this.children}</div>
     }
 }
-
-export class NavMenuItem extends Control {
+export class SubMenu extends Control {
+    constructor(props, children) {
+        super(props, children)
+        this.state = {
+            title: props.title || "标题",
+            collpased: true
+        }
+    }
+    toggleHandle = () => {
+        this.setState({
+            collpased: !this.state.collpased
+        });
+    }
     render() {
-        return <div className="e-navmenuitem">
-        
+        return <div className={`e-submenu ${this.state.collpased ? "e-submenu_collapsed" : ""}`}>
+            <div
+                className="e-submenu_title"
+                onClick={this.toggleHandle}>{this.state.title}
+                <i className={`icon iconfont e-float-right e-submenu_title_flag ${this.state.collpased ? "" : "collapsed"}`}></i>
+            </div>
+            <div className="e-submenu_list">{this.children}</div>
         </div>
+    }
+    init() {
+    }
+}
+export class NavMenuItem extends Control {
+    constructor(props, children) {
+        super(props, children);
+    }
+    render() {
+        return <div className="e-navmenuitem">{this.children}</div>
     }
 }

@@ -1,6 +1,6 @@
 import Control, { render, VNode } from "./control/control";
 import Button, { ButtonGroup } from "./button/button";
-import NavMenu, { NavMenuItem } from "./navMenu/navMenu";
+import NavMenu, { SubMenu, NavMenuItem } from "./navMenu/navMenu";
 import "./common.scss";
 import "./../assets/styles/home.scss";
 const containerNode = document.getElementById('root');
@@ -47,12 +47,88 @@ class Home extends Control {
             <div className="e-sidenav">
                 <div className="e-nav-logo">HapiAdmin Pro</div>
                 <NavMenu id="e-navmenu">
-                    <NavMenuItem>首页</NavMenuItem>
-                    <NavMenuItem>组件</NavMenuItem>
-                    <NavMenuItem>应用</NavMenuItem>
-                    <NavMenuItem>高级</NavMenuItem>
-                    <NavMenuItem>用户</NavMenuItem>
-                    <NavMenuItem>设置</NavMenuItem>
+                    <NavMenuItem>
+                        <SubMenu title="首页">
+                            <NavMenuItem href="http://www.baidu.com">控制台</NavMenuItem>
+                            <NavMenuItem>首页一</NavMenuItem>
+                            <NavMenuItem>首页二</NavMenuItem>
+                        </SubMenu>
+                    </NavMenuItem>
+                    <NavMenuItem>
+                        <SubMenu title="组件">
+                            <NavMenuItem>布局</NavMenuItem>
+                            <NavMenuItem>通用</NavMenuItem>
+                            <NavMenuItem>表单</NavMenuItem>
+                            <NavMenuItem>导航</NavMenuItem>
+                            <NavMenuItem>通知</NavMenuItem>
+                            <NavMenuItem>其他</NavMenuItem>
+                            {/* <NavMenuItem>按钮</NavMenuItem>
+                            <NavMenuItem>图标</NavMenuItem>
+                            <NavMenuItem>栅格</NavMenuItem>
+                            <NavMenuItem>布局</NavMenuItem>
+                            <NavMenuItem>面包屑</NavMenuItem>
+                            <NavMenuItem>下拉菜单</NavMenuItem>
+                            <NavMenuItem>导航菜单</NavMenuItem>
+                            <NavMenuItem>分页</NavMenuItem>
+                            <NavMenuItem>步骤条</NavMenuItem>
+                            <NavMenuItem>自动完成</NavMenuItem>
+                            <NavMenuItem>时间控件</NavMenuItem>
+                            <NavMenuItem>级联选择</NavMenuItem>
+                            <NavMenuItem>多选</NavMenuItem>
+                            <NavMenuItem>单选</NavMenuItem>
+                            <NavMenuItem>选择器</NavMenuItem>
+                            <NavMenuItem>滑块</NavMenuItem>
+                            <NavMenuItem>开关</NavMenuItem>
+                            <NavMenuItem>文本框</NavMenuItem>
+                            <NavMenuItem>树</NavMenuItem>
+                            <NavMenuItem>穿梭框</NavMenuItem>
+                            <NavMenuItem>文件上传</NavMenuItem>
+                            <NavMenuItem>对话框</NavMenuItem>
+                            <NavMenuItem>提示框</NavMenuItem>
+                            <NavMenuItem>消息框</NavMenuItem>
+                            <NavMenuItem>通知</NavMenuItem>
+                            <NavMenuItem>消息提示</NavMenuItem>
+                            <NavMenuItem>卡片</NavMenuItem>
+                            <NavMenuItem>跑马灯</NavMenuItem>
+                            <NavMenuItem>折叠面板</NavMenuItem> */}
+                        </SubMenu>
+                    </NavMenuItem>
+                    <NavMenuItem>
+                        <SubMenu title="应用">
+                            <SubMenu title="内容系统">
+                                <NavMenuItem>文章列表</NavMenuItem>
+                                <NavMenuItem>分类管理</NavMenuItem>
+                            </SubMenu>
+                            <SubMenu title="社区系统">
+                                <NavMenuItem>帖子列表</NavMenuItem>
+                                <NavMenuItem>回帖列表</NavMenuItem>
+                            </SubMenu>
+                            <NavMenuItem>消息中心</NavMenuItem>
+                            <NavMenuItem>工单系统</NavMenuItem>
+                        </SubMenu>
+                    </NavMenuItem>
+                    <NavMenuItem>
+                        <SubMenu title="高级（暂无）"></SubMenu>
+                    </NavMenuItem>
+                    <NavMenuItem>
+                        <SubMenu title="用户">
+                            <NavMenuItem>网站用户</NavMenuItem>
+                            <NavMenuItem>后台管理用户</NavMenuItem>
+                            <NavMenuItem>用户管理</NavMenuItem>
+                        </SubMenu>
+                    </NavMenuItem>
+                    <NavMenuItem>
+                        <SubMenu title="设置">
+                            <SubMenu title="系统设置">
+                                <NavMenuItem>网站设置</NavMenuItem>
+                                <NavMenuItem>邮件服务</NavMenuItem>
+                            </SubMenu>
+                            <SubMenu title="我的设置">
+                                <NavMenuItem>基本信息</NavMenuItem>
+                                <NavMenuItem>修改密码</NavMenuItem>
+                            </SubMenu>
+                        </SubMenu>
+                    </NavMenuItem>
                 </NavMenu>
             </div>
             <div className="e-container">

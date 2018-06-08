@@ -24,19 +24,6 @@ module.exports = {
     },
     module: {
         rules: [
-            // {
-            //     test: /\.js[x]?$/,
-            //     // include: path.resolve(__dirname, "components"),
-            //     use: {
-            //         loader: "babel-loader",
-            //         options: {
-            //             presets: [
-            //                 "env", "react"
-            //             ]
-            //         }
-            //     },
-            //     exclude: /node_modules/
-            // },
             {
                 test: /.tsx?$/,
                 use: {

@@ -22,8 +22,9 @@ export enum ControlState {
  * @desc 表示一个控件基类
  */
 export default class Control {
-    constructor(props) {
-        this.props = props
+    constructor(props, children?: Array<VNode>) {
+        this.props = props;
+        this.children = children;
     }
     /**
      * @desc 节点状态
@@ -34,26 +35,58 @@ export default class Control {
     }
 
     render() {
-        return <div></div>
+        return <div>{this.children}</div>
     }
 
+    // 元素子集
+    protected children: Array<VNode>
+    private sourceNode: VNode;
+
+    /**
+     * @desc diff算法实现
+     */
+    invalidate = (oldNode: Node, newNode: Node, parentNode?: Node) => {
+        // 旧
+        for(const item of (oldNode as any).children) {
+            // 新
+            for(const ite of (newNode as any).children) {
+                if(item.children && ite.children && item.children.length === ite.children.length ) {
+                    if (item != ite) {
+                        item.parentNode.replaceChild(ite, item);
+                        return;
+                    }
+                    this.invalidate(item, ite, ite);
+                    return;
+                } 
+                newNode !== oldNode && parentNode.replaceChild(newNode, oldNode);
+            }
+        }
+    }
     /**
      * @desc 更新节点
      */
     update = () => {
-        let result = VNode.toDomNodeSync(this.render(), this.alwaysUpdate === ControlState.initial ? true : false);
-        if(this._readState !== ControlState.rendering) {
+        const vNode = this.render();
+        let result = VNode.toDomNodeSync(vNode, this.alwaysUpdate === ControlState.initial ? true : false);
+        this.sourceNode = this.sourceNode || result;
+        if (this._readState !== ControlState.rendering) {
             for (const key in this._props) {
                 // 如果节点存在该属性 则添加
                 let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
-                // if (_key in result) result.setAttribute(_key,  this._props[key]);
                 if (_key in result) /^on[A-Z]*/.test(key) ? result[_key] = this._props[key]
-                : /^className$/.test(key) ? result[_key] = (result[_key] ? result[_key] : "").concat(" " + this._props[key] || "")
-                : result.setAttribute(_key, this._props[key]);
+                    : /^className$/.test(key) ? result[_key] = (result[_key] ? result[_key] : "").concat(" " + this._props[key] || "")
+                        : result.setAttribute(_key, this._props[key]);
             }
-            // 替换原来的节点
             if (this._elem && this._elem.parentNode) {
-                this._elem.parentNode.replaceChild(result, this._elem)
+                // 初次加载
+                const parentNode = this._elem.parentNode;
+                if (!this.sourceNode) {
+                    // 替换原来的节点
+                    parentNode.replaceChild(result, this._elem)
+                } else {
+                    // 对比 新旧节点 进行diff校验
+                    this.invalidate(result, this.sourceNode as any, parentNode)
+                }
             }
             this._readState = ControlState.rendered;
             this._elem = result;
@@ -65,7 +98,7 @@ export default class Control {
      * @desc 初始化完成 类似 componenntDidMount
      */
     init() {
-        console.log(`这是 ${(this as any).__proto__.constructor.name} 组件加载完成初始化函数：`, new Date().toLocaleString());
+        // console.log(`这是 ${(this as any).__proto__.constructor.name} 组件加载完成初始化函数：`, new Date().toLocaleString());
     }
     /**
      * @desc 组件卸载 类型 componentWillUnmount
@@ -111,7 +144,6 @@ export default class Control {
                 // 如果 属性有新增／删除 则直接重新渲染
                 if (Object.keys(this._props).length !== Object.keys(v).length) {
                     this._props = v;
-                    // 若节点未渲染完成 则 不进行节点渲染
                     this._readState = ControlState.invalidate && this.update();
                     return;
                 }
@@ -119,7 +151,6 @@ export default class Control {
                 for (const key in v) {
                     if (v[key] !== this._props[key]) {
                         this._props = v;
-                        // 若节点未渲染完成 则 不进行节点渲染
                         this._readState = ControlState.invalidate && this.update();
                         return;
                     }
@@ -139,7 +170,6 @@ export default class Control {
         return this._props;
     }
 
-    protected children: VNode[]
     /**
      * @desc 类名 className
      */
@@ -221,15 +251,14 @@ export class VNode {
         switch (typeof type) {
             case "function":
                 // 组件
-                const _type = new (type as any)(attrs);
-                _type.children = children;
-                _type.readState = isInitial ? ControlState.initial : ControlState.invalidate;  
-                if (children && children.length) {
-                    for (const child of children) {
-                        const _child = this.toDomNodeSync(child, isInitial ? true : false);
-                        _type.elem && _type.elem.appendChild(_child);
-                    }
-                }
+                const _type = new (type as any)(attrs, children);
+                _type.readState = isInitial ? ControlState.initial : ControlState.invalidate;
+                // if (children && children.length) {
+                //     for (const child of children) {
+                //         const _child = this.toDomNodeSync(child, isInitial ? true : false);
+                //         _type.elem && _type.elem.appendChild(_child);
+                //     }
+                // }
                 _node = _type.elem;
                 break;
             case "string":
@@ -245,11 +274,6 @@ export class VNode {
             default:
                 // 字符串
                 _node = DOM.createTextNode(attrs);
-                // if (children && children.length) {
-                //     for (const child of children) {
-                //         _node.appendChild(this.toDomNodeSync(child));
-                //     }
-                // }
                 break;
         }
         return _node;
