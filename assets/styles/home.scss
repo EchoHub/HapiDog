@@ -49,6 +49,10 @@
                 }
             }
         }
+        &.fixed{
+            width: 100%;
+            padding-left: 0;
+        }
     }
     .e-sidenav{
         position: fixed;
@@ -58,6 +62,10 @@
         height: 100%;
         left: 0;
         background: #23262E;
+        overflow: hidden;
+        &.collapsed{
+            width: 0;
+        }
         .e-nav-logo{
             width: 220px;
             float: left;
@@ -79,6 +87,10 @@
         overflow-y: auto;
         background-color: #f2f2f2;
         padding: 10px;
+        &.fixed{
+            width: 100%;
+            left: 0;
+        }
     }
     .e-footer{
         position: fixed;

@@ -103,7 +103,6 @@ export default class Control {
         //     const parent = oldElem && oldElem.parentNode || null;
         //     if (parent) v ? parent.replaceChild(v, oldElem) : parent.removeChild(oldElem);
         // }
-
         const oldElem = this._elem;
         // 如果不一样则重新赋值
         if (oldElem != v) {
@@ -138,8 +137,8 @@ export default class Control {
         // tag不一致 直接替换
         // if (!oldNode.isEqualNode(newNode)) {
         if (oldNodeTag !== newNodeTag || newNode.nodeType !== 1) {
-            const result = oldNode.cloneNode();
-            parentNode.replaceChild(result, oldNode);
+            const result = newNode.cloneNode();
+            parentNode.replaceChild(result, oldElem);
         } else {
             // tag一致 影响因素 属性 不替换， 子元素变化 直接替换子元素
             const oldAttrNames = (oldElem as any).getAttributeNames();

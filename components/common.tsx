@@ -10,7 +10,8 @@ class Home extends Control {
         this.state = {
             buttonName: "事件一取消",
             buttonName2: "事件二取消",
-            buttonName3: "事件三取消"
+            buttonName3: "事件三取消",
+            collapsed: false
         }
     }
     private node
@@ -30,11 +31,17 @@ class Home extends Control {
             buttonName3: this.state.buttonName3 === "事件三取消" ? "事件三激活" : "事件三取消"
         })
     }
+
+    toggleNavHandle = () => {
+        this.setState({
+            collapsed: !this.state.collapsed
+        })
+    }
     render() {
         return <div className="e-home">
-            <div className="e-header">
+            <div className={`e-header ${this.state.collapsed ? "fixed" : ""}`}>
                 <ul className="e-header-nav e-float-left">
-                    <li><a href="javascript:;"><i className="icon iconfont">&#xe70f;</i></a></li>
+                    <li><a href="javascript:;" onClick={this.toggleNavHandle}><i className="icon iconfont">&#xe70f;</i></a></li>
                     <li><a href="javascript:;"><i className="icon iconfont">&#xe72b;</i></a></li>
                     <li><a href="javascript:;"><i className="icon iconfont">&#xe721;</i></a></li>
                 </ul>
@@ -44,7 +51,7 @@ class Home extends Control {
                     <li><a href="javascript:;"><i className="icon iconfont">&#xe72f;</i></a></li>
                 </ul>
             </div>
-            <div className="e-sidenav">
+            <div className={`e-sidenav ${this.state.collapsed ? "collapsed" : ""}`}>
                 <div className="e-nav-logo">HapiAdmin Pro</div>
                 <NavMenu id="e-navmenu">
                     <NavMenuItem>
@@ -131,7 +138,7 @@ class Home extends Control {
                     </NavMenuItem>
                 </NavMenu>
             </div>
-            <div className="e-container">
+            <div className={`e-container ${this.state.collapsed ? "fixed" : ""}`}>
                 <section className="e-section button-section">
                     <fieldset className="e-section-fieldset">
                         <legend>按钮主题</legend>
