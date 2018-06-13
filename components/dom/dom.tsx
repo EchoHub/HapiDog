@@ -38,3 +38,11 @@ export function createElement(type, props) {
     }
     return element;
 }
+
+
+/**
+ * @desc 清空所有子节点
+ */
+export function removeAllChildren(targetNode) {
+    targetNode.innerHTML = "";
+}

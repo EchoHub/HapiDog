@@ -24,7 +24,7 @@ export class SubMenu extends Control {
             <div
                 className="e-submenu_title"
                 onClick={this.toggleHandle}>{this.state.title}
-                <i className={`icon iconfont e-float-right e-submenu_title_flag ${this.state.collpased ? "collapsed" : ""}`}></i>
+                <i className={"icon iconfont e-float-right e-submenu_title_flag"}></i>
             </div>
             <div className="e-submenu_list">{this.children}</div>
         </div>

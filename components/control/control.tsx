@@ -40,25 +40,12 @@ export default class Control {
 
     // 元素子集
     protected children: Array<VNode>
-    diff = (oldNode: Node, newNode: Node, parentNode) => {
-        const oldTag = (oldNode as HTMLElement).tagName;
-        const newTag = (newNode as HTMLElement).tagName;
-        if (oldTag !== newTag) {
-            // tag不一致重新渲染
-            parentNode.replaceChild(newNode, oldNode);
-        } else {
-            const oldAttrs = (oldNode as HTMLElement).attributes;
-            const newAttrs = (newNode as HTMLElement).attributes;
-            // 属性不一致 不重新渲染 只改变属性
-            parentNode.replaceChild(newNode, oldNode);
-            // 子集不一致 重新渲染
-        }
-    }
     /**
      * @desc 更新节点
      */
+    private parentNode: Node
     update = () => {
-        const vNode = this.render();
+        let vNode = this.render();
         let result = VNode.toDomNodeSync(vNode, this.alwaysUpdate === ControlState.initial ? true : false);
         if (this._readState !== ControlState.rendering) {
             for (const key in this._props) {
@@ -68,12 +55,13 @@ export default class Control {
                     : /^className$/.test(key) ? result[_key] = (result[_key] ? result[_key] : "").concat(" " + this._props[key] || "")
                         : result.setAttribute(_key, this._props[key]);
             }
-            if (this._elem && this._elem.parentNode) {
-                const parentNode = this._elem.parentNode;
-                this.diff(this._elem, result, parentNode)
-            }
+            // if (this._elem && (this._elem.parentNode || this.parentNode)) {
+            //     this.parentNode = this._elem.parentNode || this.parentNode;
+            //     const parentNode = this.parentNode;
+            //     // parentNode.replaceChild(result, this._elem);
+            // }
             this._readState = ControlState.rendered;
-            this._elem = result;
+            this.elem = result;
             this.alwaysUpdate === ControlState.initial && this.init();
         }
     }
@@ -108,12 +96,77 @@ export default class Control {
      * @desc 设置节点对应真实节点
      */
     set elem(v) {
+        // const oldElem = this._elem;
+        // // 如果不一样则重新赋值
+        // if (oldElem != v) {
+        //     this._elem = v;
+        //     const parent = oldElem && oldElem.parentNode || null;
+        //     if (parent) v ? parent.replaceChild(v, oldElem) : parent.removeChild(oldElem);
+        // }
+
         const oldElem = this._elem;
         // 如果不一样则重新赋值
         if (oldElem != v) {
             this._elem = v;
             const parent = oldElem && oldElem.parentNode || null;
-            if (parent) v ? parent.replaceChild(v, oldElem) : parent.removeChild(oldElem);
+            // if (parent) this.diff(oldElem, v, parent);
+            this.diff(oldElem, v, parent);
+        }
+    }
+
+    /**
+ * @desc diff 算法实现
+ * @param oldNode 原节点
+ * @param newNode 新节点
+ * @param parentNode 父节点
+ */
+    diff = (oldNode: Node, newNode: Node, parentNode: Node) => {
+        // 若 元节点无 新节点有 则直接新增 ，反之 直接删除
+        if (!oldNode) {
+            newNode && parentNode && parentNode.appendChild(newNode);
+            return;
+        }
+        // if (!newNode) {
+        //     oldNode && parentNode && parentNode.removeChild(oldNode);
+        //     return;
+        // }
+        let result;
+        const oldElem = (oldNode as HTMLElement);
+        const newElem = (newNode as HTMLElement);
+        const oldNodeTag = oldElem.tagName;
+        const newNodeTag = newElem.tagName;
+        // tag不一致 直接替换
+        // if (!oldNode.isEqualNode(newNode)) {
+        if (oldNodeTag !== newNodeTag || newNode.nodeType !== 1) {
+            const result = oldNode.cloneNode();
+            parentNode.replaceChild(result, oldNode);
+        } else {
+            // tag一致 影响因素 属性 不替换， 子元素变化 直接替换子元素
+            const oldAttrNames = (oldElem as any).getAttributeNames();
+            const newAttrNames = (newElem as any).getAttributeNames();
+            const attrs = newAttrNames.concat(oldAttrNames);
+            for (const item of attrs) {
+                oldElem.setAttribute(item, newElem.getAttribute(item) !== undefined ? newElem.getAttribute(item) : oldElem.getAttribute(item));
+            }
+            // 判断子节点
+            const old_hasChildren = oldNode.hasChildNodes();
+            const new_hasChildren = newNode.hasChildNodes();
+            if (old_hasChildren && new_hasChildren) {
+                let _index = 0;
+                const oldChildren = oldNode.childNodes as any;
+                const newChildren = newNode.childNodes as any;
+                for (const item of oldChildren) {
+                    for (const ite of newChildren) {
+                        this.diff(oldChildren[_index], newChildren[_index], oldNode);
+                    }
+                    _index++;
+                }
+            } else if (old_hasChildren && !new_hasChildren) {
+                for (const item of (oldNode.childNodes as any)) parentNode && parentNode.removeChild(item)
+            } else if (!old_hasChildren && new_hasChildren) {
+                for (const item of (newNode.childNodes as any)) parentNode && parentNode.appendChild(item)
+            }
+            this._elem = oldElem;
         }
     }
 
@@ -237,12 +290,6 @@ export class VNode {
                 // 组件
                 const _type = new (type as any)(attrs, children);
                 _type.readState = isInitial ? ControlState.initial : ControlState.invalidate;
-                // if (children && children.length) {
-                //     for (const child of children) {
-                //         const _child = this.toDomNodeSync(child, isInitial ? true : false);
-                //         _type.elem && _type.elem.appendChild(_child);
-                //     }
-                // }
                 _node = _type.elem;
                 break;
             case "string":
@@ -260,6 +307,7 @@ export class VNode {
                 _node = DOM.createTextNode(attrs);
                 break;
         }
+        vNode.result = _node;
         return _node;
     }
     /**

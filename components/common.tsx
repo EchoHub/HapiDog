@@ -34,14 +34,14 @@ class Home extends Control {
         return <div className="e-home">
             <div className="e-header">
                 <ul className="e-header-nav e-float-left">
-                    <li><a href="javascripr:;"><i className="icon iconfont">&#xe70f;</i></a></li>
-                    <li><a href="javascripr:;"><i className="icon iconfont">&#xe72b;</i></a></li>
-                    <li><a href="javascripr:;"><i className="icon iconfont">&#xe721;</i></a></li>
+                    <li><a href="javascript:;"><i className="icon iconfont">&#xe70f;</i></a></li>
+                    <li><a href="javascript:;"><i className="icon iconfont">&#xe72b;</i></a></li>
+                    <li><a href="javascript:;"><i className="icon iconfont">&#xe721;</i></a></li>
                 </ul>
                 <ul className="e-header-nav e-float-right">
-                    <li><a href="javascripr:;"><i className="icon iconfont">&#xe723;</i></a></li>
-                    <li><a href="javascripr:;"><i className="icon iconfont">&#xe710;</i></a></li>
-                    <li><a href="javascripr:;"><i className="icon iconfont">&#xe72f;</i></a></li>
+                    <li><a href="javascript:;"><i className="icon iconfont">&#xe723;</i></a></li>
+                    <li><a href="javascript:;"><i className="icon iconfont">&#xe710;</i></a></li>
+                    <li><a href="javascript:;"><i className="icon iconfont">&#xe72f;</i></a></li>
                 </ul>
             </div>
             <div className="e-sidenav">

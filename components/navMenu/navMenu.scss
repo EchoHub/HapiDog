@@ -34,13 +34,15 @@
                 -webkit-transition: -webkit-transform ease .3s;
                 -o-transition: -o-transform ease .3s;
                 -ms-transition: -ms-transform ease .3s;
-                &.collapsed{
-                    transform: rotate(0);
-                    -moz-transform: rotate(0);
-                    -webkit-transform: rotate(0);
-                    -o-transform: rotate(0);
-                    -ms-transform: rotate(0);
-                }
+            }
+        }
+        &.e-submenu_collapsed{
+            .e-submenu_title_flag{
+                transform: rotate(0);
+                -moz-transform: rotate(0);
+                -webkit-transform: rotate(0);
+                -o-transform: rotate(0);
+                -ms-transform: rotate(0);
             }
         }
         &_list{
