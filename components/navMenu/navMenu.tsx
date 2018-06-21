@@ -8,9 +8,8 @@ export default class NavMenu extends Control {
 }
 export class SubMenu extends Control {
     constructor(props, children) {
-        super(props, children)
+        super(props, children);
         this.state = {
-            title: props.title || "标题",
             collpased: true
         }
     }
@@ -23,7 +22,7 @@ export class SubMenu extends Control {
         return <div className={`e-submenu ${this.state.collpased ? "e-submenu_collapsed" : ""}`}>
             <div
                 className="e-submenu_title"
-                onClick={this.toggleHandle}>{this.state.title}
+                onClick={this.toggleHandle}>{this.props.title}
                 <i className={"icon iconfont e-float-right e-submenu_title_flag"}></i>
             </div>
             <div className="e-submenu_list">{this.children}</div>

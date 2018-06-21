@@ -41,6 +41,7 @@
     &-default{
         border: 1px solid #c9c9c9;
         color: #555555;
+        background: #fafafa;
         &:hover{
             border: 1px solid #2196f3;
             color: #2196f3;
@@ -81,6 +82,7 @@
     &-light{
         border: 1px solid #2196f3;
         color: #2196f3;
+        background: #ffffff;
         &:hover{
             background-color: #daebf7;
         }
