@@ -1,353 +1,204 @@
 /// <reference path="jsx.d.ts" />
 import * as DOM from "./../dom/dom"
-// 节点集合
-let $$state = []
-// 状态更新的节点
-let $$stateUpdateNode;
+import { gethashcode } from "./../util/util"
+
 export enum ControlState {
-    /**
-     * 初始状态
-     */
+    // 第一次家在
     initial = 1,
-    /**
-     * 需要重新渲染
-     */
+
+    // 需要更新
     invalidate = 2,
-    /**
-     * 正在渲染
-     */
+
+    // 正在渲染
     rendering = 3,
-    /**
-     * 状态变化
-     */
-    stateUpdate = 4,
-    /**
-     * 渲染结束
-     */
-    rendered = 5
+
+    // 渲染完成
+    rendered = 4
 }
 /**
- * @desc 表示一个控件基类
+ * @desc 自定义组件基类
  */
 export default class Control {
-    constructor(props, children?: Array<VNode>, state?) {
-        this.props = props;
-        this.children = children;
-    }
+    // control 状态
+    readyState
     /**
-     * @desc 节点状态
+     * @desc 插入节点到指定节点中
+     * @param target 目标节点
      */
-    private _readyState;
-    set readState(v) {
-        v && (this._readyState = v);
+    renderTo(target: Control | HTMLElement) {
+        // 如果 目标节点存在 则 进行 添加操作
+        if (target) {
+            (target instanceof Control ? target.elem : target).appendChild(this.elem);
+        }
+        // else {
+        // }
     }
 
-    render() {
-        return <div>{this.children}</div>
+
+    /**
+     * @desc 节点渲染函数
+     */
+    protected render(children?: VNode[], props?: { [key: string]: any }): VNode | null;
+    protected render() {
+        return <div />
     }
 
-    // 元素子集
-    protected children: Array<VNode>
     /**
-     * @desc 更新节点
+     * 获取当前控件关联的虚拟节点。
      */
-    private parentNode: Node
-    private $$id
-    update = () => {
-        // $$state.forEach((d, i) => {
-        //     switch (this._readyState) {
-        //         case ControlState.invalidate:
-        //             if (d.vNode.$$id !== this.$$id) {
-        //                 d.state && (this.state = d.state);
-        //             }
-        //             break;
-        //         case ControlState.stateUpdate:
-        //             if ($$stateUpdateNode && d.vNode.$$id === $$stateUpdateNode) $$state[i].state = state;
-        //             break;
-        //     }
-        // });
-        const vNode = this.render();
-        const result = VNode.toDomNodeSync(vNode, this.alwaysUpdate === ControlState.initial ? 1 : this._readyState);
-        if (this._readyState !== ControlState.rendering) {
-            for (const key in this._props) {
-                // 如果节点存在该属性 则添加
-                let _key = /^on[A-Z]*/.test(key) ? key.toLowerCase() : key;
-                if (_key in result) /^on[A-Z]*/.test(key) ? result[_key] = this._props[key]
-                    : /^className$/.test(key) ? result[_key] = (result[_key] ? result[_key] : "").concat(" " + this._props[key] || "")
-                        : result.setAttribute(_key, this._props[key]);
-            }
-            this._readyState = ControlState.rendered;
-            this.elem = result;
-            // 元素装载完成，执行初始化操作
-            if (this.alwaysUpdate === ControlState.initial) {
-                this.$$id = new Date().getTime();
-                $$state.push({
-                    vNode: this,
-                    state: this.state
-                });
-                this.init();
-            }
+    protected vNode: VNode | null;
+
+    /**
+     * @desc 创建节点时对应的虚拟节点
+     */
+    sourceVNode
+
+    /**
+     * @desc 节点更新函数
+     */
+    update() {
+        // 如果节点没有正在更新，则进行更新操作，并且把节点状态改为更新中
+        if (this.readyState !== ControlState.rendering) {
+            this.readyState = ControlState.rendering;
+            const oldVNode = this.vNode;
+            const newVNode = this.vNode = this.render();
+            VNode.sync(newVNode, oldVNode);
+            this.elem = newVNode.result;
         }
     }
 
     /**
-     * @desc 初始化完成 类似 componenntDidMount
+     * @desc 初始化函数
      */
     init() {
-        // console.log(`这是 ${(this as any).__proto__.constructor.name} 组件加载完成初始化函数：`, new Date().toLocaleString());
+
     }
+
     /**
-     * @desc 组件卸载 类型 componentWillUnmount
+     * @desc 挂载函数
      */
-    uninit() {
+    unmount() {
+
     }
-    // 对应的原生节点
-    private _elem: HTMLElement;
-    /**
-     * @desc 获取节点对应真实节点
-     */
-    private alwaysUpdate: Number;
+
+    _elem
     get elem() {
-        if (this._readyState !== ControlState.rendered) {
-            this.alwaysUpdate = this._readyState
-            this._readyState = ControlState.invalidate
+        if (this.readyState !== ControlState.rendered) {
             this.update();
         }
-        this._readyState = ControlState.rendered;
-        return this._elem;
+        return this._elem
     }
-    /**
-     * @desc 设置节点对应真实节点
-     */
+
     set elem(v) {
-        const oldElem = this._elem;
-        // 如果不一样则重新赋值
-        if (oldElem != v) {
-            this._elem = v;
-            const parent = oldElem && oldElem.parentNode || null;
-            this.diff(oldElem, v, parent);
-        }
+        this._elem = v;
     }
-
-    /**
-     * @desc diff 算法实现
-     * @param oldNode 原节点
-     * @param newNode 新节点
-     * @param parentNode 父节点
-     */
-    diff = (oldNode: Node, newNode: Node, parentNode: Node) => {
-        // 若 原节点无 新节点有 则直接新增 ，反之 直接删除
-        if (!oldNode) {
-            newNode && parentNode && parentNode.appendChild(newNode);
-            return;
-        }
-        let result;
-        const oldElem = (oldNode as HTMLElement);
-        const newElem = (newNode as HTMLElement);
-        const oldNodeTag = oldElem.tagName;
-        const newNodeTag = newElem.tagName;
-        // tag不一致 直接替换
-        // if (!oldNode.isEqualNode(newNode)) {
-        if (oldNodeTag !== newNodeTag || newNode.nodeType !== 1) {
-            const result = newNode.cloneNode();
-            parentNode.replaceChild(result, oldElem);
-        } else {
-            // tag一致 影响因素 属性 不替换， 子元素变化 直接替换子元素
-            const oldAttrNames = (oldElem as any).getAttributeNames();
-            const newAttrNames = (newElem as any).getAttributeNames();
-            const attrs = newAttrNames.concat(oldAttrNames);
-            for (const item of attrs) {
-                oldElem.setAttribute(item, newElem.getAttribute(item) !== undefined ? newElem.getAttribute(item) : oldElem.getAttribute(item));
-            }
-            // 判断子节点
-            const old_hasChildren = oldNode.hasChildNodes();
-            const new_hasChildren = newNode.hasChildNodes();
-            if (old_hasChildren && new_hasChildren) {
-                let _index = 0;
-                const oldChildren = oldNode.childNodes as any;
-                const newChildren = newNode.childNodes as any;
-                for (const item of oldChildren) {
-                    for (const ite of newChildren) {
-                        this.diff(oldChildren[_index], newChildren[_index], oldNode);
-                    }
-                    _index++;
-                }
-            } else if (old_hasChildren && !new_hasChildren) {
-                for (const item of (oldNode.childNodes as any)) parentNode && parentNode.removeChild(item)
-            } else if (!old_hasChildren && new_hasChildren) {
-                for (const item of (newNode.childNodes as any)) parentNode && parentNode.appendChild(item)
-            }
-            this._elem = oldElem;
-        }
-    }
-
-    private _props
-    /**
-     * @desc 设置节点属性
-     */
-    set props(v) {
-        if (v && Object.keys(v).length) {
-            // 验证 props是否发生变化 如果发生变化则重新渲染节点
-            if (this._props) {
-                // 如果 属性有新增／删除 则直接重新渲染
-                if (Object.keys(this._props).length !== Object.keys(v).length) {
-                    this._props = v;
-                    this._readyState = ControlState.invalidate && this.update();
-                    return;
-                }
-                // 如果属性值发生变化，则重新渲染
-                for (const key in v) {
-                    if (v[key] !== this._props[key]) {
-                        this._props = v;
-                        this._readyState = ControlState.invalidate && this.update();
-                        return;
-                    }
-                }
-            } else {
-                this._props = v;
-                // 若节点未渲染完成 则 不进行节点渲染
-                this._readyState === ControlState.rendered && this.update();
-            }
-        }
-
-    }
-    /**
-     * @desc 获取节点属性
-     */
-    get props() {
-        return this._props;
-    }
-
-    /**
-     * @desc 类名 className
-     */
-    private _class: Array<String>
-    get class() {
-        return this._class
-    }
-
-    set class(v: Array<String>) {
-        this._class = v;
-    }
-    protected state: { [key: string]: string | number | Object | any }
-    // 状态赋值
-    setState(v: { [key: string]: string | number | Object | any }) {
-        if (!v) return;
-        if (Object.keys(v).length) {
-            for (const key in v) {
-                if (v[key] !== this.state[key]) {
-                    this.state[key] = v[key];
-                    this._readyState === ControlState.rendered && (this._readyState = ControlState.stateUpdate);
-                }
-            }
-            if (this._readyState === ControlState.stateUpdate) {
-                $$stateUpdateNode = this.$$id;
-                this.alwaysUpdate = this._readyState;
-                this.update();
-            }
-        }
-    }
-
-    // 原始VNode
-    originData
 }
+
 /**
  * @desc 虚拟节点
  */
 export class VNode {
+
+    constructor(public type: Control | string | null, public props: { [key: string]: any }, public children?: VNode[]) { }
+
     /**
-     * @desc 构造一个节点
-     * @param type 节点类型 字符串（代表HTML 原生节点） | null | 函数 （代表控件）
-     * @param prop 属性
-     * @param children 子节点
+     * @desc 添加子集
+     * @param child 子集
      */
-    constructor(public type: string | null | (new () => Control), public props: any | { [name: string]: any } | null, public children?: VNode[]) { }
-    /**
-     * 添加一个或多个子节点。
-     * @param child 要添加的子内容。
-     */
-    append(child: any) {
-        if (child == null) {
-            return;
-        }
+    protected append(child?) {
+        if (!child) return null;
         if (Array.isArray(child)) {
-            for (const item of child) {
-                this.append(item);
-            }
+            for (const item of child) this.append(item);
         } else {
-            this.children!.push(child instanceof VNode ? child : new VNode(null, child));
+            this.children.push(child instanceof VNode ? child : new VNode(null, child));
         }
     }
+
     /**
-     * 创建一个虚拟节点。
-     * @param type 节点类型。如果是字符串表示 HTML 原生节点；如果是 null 表示文本节点；如果是函数表示控件。
-     * @param props 节点属性。如果是文本节点则表示节点内容。
-     * @param children 所有子内容。
-     * @return 返回创建的虚拟节点。
+     * @desc 创建一个虚拟节点
+     * @param type 节点类型
+     * @param props 节点属性
+     * @param children 节点子集
      */
     static create(type: VNode["type"], props: VNode["props"], ...children: any[]) {
-        const r = new VNode(type, props, []);
-        r.append(children);
-        return r;
+        const _ = new VNode(type, props, []);
+        _.append(children);
+        return _;
     }
 
     /**
-     * @desc 同步生成节点对应的真实节点
-     * @param vNode VNode
-     * @param isInitial 是否是初次加载
+     * @desc 同步节点
+     * @param newVNode 新节点
+     * @param oldVNode 源节点
      */
-    static toDomNodeSync(vNode: VNode, controlState?: Number) {
-        const type = vNode.type;
-        const attrs = vNode.props;
-        const children = vNode.children;
-        let _node;
-        switch (typeof type) {
-            case "function":
-                // 组件
-                console.log(vNode)
-                const _control = new (type as any)(attrs, children);
-                _control.readState = controlState === ControlState.initial ? ControlState.initial : ControlState.invalidate;
-                _node = _control.elem;
-                break;
-            case "string":
-                // 原生节点
-                _node = DOM.createElement(type, attrs);
-                if (children && children.length) {
-                    for (const child of children) {
-                        const _child = this.toDomNodeSync(child, controlState);
-                        _child && _node.appendChild(_child);
+    static sync(newVNode, oldVNode?) {
+        // 节点类型
+        const type = newVNode.type;
+        // 是否是自定义组件
+        const isControl = typeof type === "function";
+        // 是否进行重新渲染
+        let recreated = !oldVNode || !oldVNode.props || oldVNode && newVNode && oldVNode.props && newVNode.props && oldVNode.props.id !== newVNode.props.id;
+        // 对应的节点 control | node | textnode
+        const result = newVNode.result = recreated ? type ? isControl ? new (type as new () => Control) : document.createElement(type as string) : document.createTextNode(newVNode.props) : oldVNode.result;
+        // 如果 type 存在 则为 control | node，否则为 textnode
+        if (type) {
+            // 判断是否为control
+            console.log(newVNode.props, result);
+            if (isControl) {
+                result.sourceVNode = newVNode;
+            } else {
+
+            }
+            // 获取对应的节点
+            const body = result instanceof Control ? result.elem : result;
+            if (body) {
+                const children = newVNode.children && newVNode.children.length ? newVNode.children : [];
+                // 如果 节点不需要更新则 比较原节点的子集 进行替换
+                children && children.forEach((d, i) => {
+                    if (!recreated) {
+                        const oldChildren = oldVNode.children;
+                        VNode.sync(d, oldChildren[i]);
+                    } else {
+                        VNode.sync(d);
                     }
-                }
-                break;
-            default:
-                // 字符串
-                _node = DOM.createTextNode(attrs);
-                break;
+
+                    if (d.result instanceof Control) {
+                        (d.result).renderTo(result);
+                    } else {
+                        (result instanceof Control ? result.elem : result).appendChild(d.result);
+                    }
+                });
+            }
+
+        } else {
+            if (!recreated && oldVNode.props !== newVNode.props) (result as Text).textContent = newVNode.props;
         }
-        vNode.result = _node;
-        return _node;
     }
-    /**
-     * @desc 生成的真实节点 或者 控件
-     */
-    result: HTMLElement | Text | Control;
 
+    // 对应的节点
+    result: Control | HTMLElement | Text;
 }
+
+export type NodeLike = VNode | Control | Node | Text | null;
+
+export function from(content) {
+    if (!content) return;
+    if (content instanceof VNode) {
+        VNode.sync(content);
+        content = content.result;
+    }
+    return content;
+}
+
 /**
- * @desc 渲染节点
+ * @desc 渲染指定内容到目标节点
+ * @param content 内容节点
+ * @param target 目标节点
  */
-export function render(vNode, target) {
-    let result
-    // 控件／原生节点
-    target.innerHTML = ""
-    if (vNode instanceof VNode) {
-        if (!vNode.result) vNode.result = VNode.toDomNodeSync(vNode, 1);
-        result = vNode.result || null;
-        result && target.appendChild(result);
-        return;
+export function render(content: NodeLike, target: Control | HTMLElement) {
+    content = from(content);
+    if (content instanceof Control) content.renderTo(target);
+    else {
+        (target instanceof Control ? (target as Control).elem : target).appendChild(content);
     }
-    // 文本节点
-    result = DOM.createTextNode(vNode);
-    target.appendChild(result);
 }
-
