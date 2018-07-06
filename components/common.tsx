@@ -8,9 +8,9 @@ class Text extends Control {
 
     protected render() {
         return <div className="text">
-            <Button>按钮</Button>
+            <Button className="e-button-primary">按钮</Button>
             <div>111</div>
-            <div><Button>按钮</Button></div>
+            <div><Button className="e-button-light">按钮</Button></div>
         </div>
     }
 }

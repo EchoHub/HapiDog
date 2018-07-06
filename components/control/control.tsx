@@ -143,11 +143,21 @@ export class VNode {
         // 如果 type 存在 则为 control | node，否则为 textnode
         if (type) {
             // 判断是否为control
-            console.log(newVNode.props, result);
             if (isControl) {
                 result.sourceVNode = newVNode;
             } else {
 
+                // 同步属性
+                // const props = newVNode.props || {};
+                // if (!recreated) {
+                //     const oldProps = oldVNode.props || {};
+                //     for (const key in oldProps) {
+                //         if (!(key in props)) result.removeAttribute(key);
+                //     }
+                // }
+                // for (const key in props) {
+                //     result.setAttribute(key, props[key])
+                // }
             }
             // 获取对应的节点
             const body = result instanceof Control ? result.elem : result;
@@ -158,9 +168,7 @@ export class VNode {
                     if (!recreated) {
                         const oldChildren = oldVNode.children;
                         VNode.sync(d, oldChildren[i]);
-                    } else {
-                        VNode.sync(d);
-                    }
+                    } else VNode.sync(d);
 
                     if (d.result instanceof Control) {
                         (d.result).renderTo(result);
